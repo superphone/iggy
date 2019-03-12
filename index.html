@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.js"></script>
+    <script src="http://superphone.io/f/assets/javascripts/intlTelInput.js"></script>
+    <link rel="stylesheet" href="http://superphone.io/f/assets/stylesheets/intlTelInput.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+
+
+    
+  <script type="text/javascript">
+
+        
+        $(document).ready(function () {
+
+            // Set up phone widget
+            $("#phone").intlTelInput({
+                utilsScript: 'http://superphone.io/f/assets/javascripts/utils.js',
+                numberType: "MOBILE",
+                nationalMode: false,
+                autoFormat: true,
+                autoPlaceholder: true
+            });
+    
+            // Click on button send
+            $('#addContact').submit(function (event) {
+                event.preventDefault();
+                var formData = $("#addContact").serializeArray();
+                $('#submitButton').prop('disabled', true);
+                $('.form-error').hide();
+    
+                // Convert the form data to backend format
+                var requestData = {};
+                formData.map(function (element) {
+                    requestData[element.name] = element.value;
+                });
+    
+                // Send post to API
+                $.ajax({
+                    url: 'https://superphone.io/w/A9LQaE', // Url where to submit the request
+                    type: "POST",
+                    beforeSend: function (request) {
+                        request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    },
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function (result) {
+                        console.log(result);
+                        toggleHide();
+                        document.getElementsByClassName("sp-widget-input")[0].setAttribute("style","display:none;")
+
+                        var spCopy = document.getElementsByClassName("sp-copy")[0]
+
+                        spCopy.getElementsByClassName("title")[0].setAttribute("style","display:none;")
+                        spCopy.getElementsByClassName("subtext")[0].setAttribute("style","display:none;")
+                        spCopy.getElementsByClassName("confirmation")[0].setAttribute("style","") 
+                    },
+                    error: function (xhr, resp, text) {
+                        $('.form-error').show();
+                        $('#submitButton').prop('disabled', false);
+                    }
+                });
+            });
+
+            var spClosed = sessionStorage.getItem('spCtaClosed');
+            if (!spClosed) {
+              var tripped = false;
+              window.addEventListener("scroll",function () {
+                if (tripped == false) {
+                  setTimeout(function () { toggleHide(); }, 5000)
+                  tripped = true;
+                }
+              }) 
+            }
+        });
+
+        function toggleHide () {
+            var widget = document.getElementsByClassName("sp-widget")[0]
+            if (widget.className.indexOf("closed") < 0) {
+                widget.className += " closed"
+                sessionStorage.setItem('spCtaClosed', true);
+            } else {
+                widget.className = widget.className.replace(" closed","")
+            }
+        }
+    </script>
+    
+    
+    <style>
+
+        body {
+            margin:0;
+        }
+        body,input,button {font-family:Circular Std, Helvetica;}
+
+    
+        .parsley-errors-list {
+            list-style: none;
+            padding: 0;
+            margin: 6px 0 0 0;
+        }
+        .form-error {
+            display: none;
+            color: #ff4c4c;
+            font-size:12px;
+            position:relative;
+        }
+    
+        .form-success {
+            display: none;
+        }
+    
+        .parsley-required {
+            color: #ff4c4c;
+            font-size:11px;
+        }
+    
+        .parsley-minlength {
+            color: #ff4c4c;
+            font-size:11px;
+        }
+    
+        .iti-flag {
+            background-image: url("http://superphone.io/f/assets/images/flags.png");
+        }
+
+
+        .icon-close {
+            width:15px;
+            height:15px;
+            position:absolute;
+            top:12px;
+            right:12px;
+            transform:rotate(45deg);
+            opacity:0.2;
+            transition:0.3s ease opacity;
+            display:none;
+            z-index:100;
+        }
+            .icon-close:hover {
+                opacity:0.5;
+                cursor:pointer;
+            }
+            .icon-close .line1, .icon-close .line2 {
+                border-bottom:1px solid #000;
+                border-top:1px #000;
+                width:100%;
+                position:absolute;
+                top:7px;
+            }
+            .icon-close .line2 {
+                transform:rotate(90deg);
+            }
+        .sp-widget.mode-fixedBar .icon-close {display:block;}
+        .sp-widget.mode-modalPopup .icon-close {display:block;opacity:0.6;}
+        .sp-widget.mode-modalPopup .icon-close:hover {display:block;opacity:1;}
+        .sp-widget-input input, .sp-widget-input select, .sp-widget-input button {
+            appearance:none;
+            -webkit-appearance:none;
+            background-color:#fff;
+            border:2px solid #F1F1F1;
+            padding:12px;
+            font-size:15px;
+            color:rgba(0,0,0,0.4);
+            width:100%;
+            box-sizing:border-box;
+            margin:0;
+            transition:0.3s ease background, 0.3s ease broder;
+            border-radius:0;
+            line-height:19px;
+            color: #555;
+        }
+        .sp-widget-input input {
+          border-right-width: 0px;
+        }
+        .sp-widget-input input:focus, .sp-widget-input select:focus, .sp-widget-input button:focus {
+          outline:0;
+        }
+        .sp-widget-input input:focus {
+          background-color: #f8f8f8;
+        }
+        .sp-widget-input input:hover {
+          border-color: #e8e8e8;
+        }
+
+
+        .sp-widget-input button {
+            /*background-color:#CFB46E;
+            border-color:#B9A162;*/
+            background-color:#0070b6;
+            border-color:#0e5b8b;
+            font-weight:bold;
+            color:#fff;
+            font-size:10px;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            transition: 0.3s ease background, 0.3s ease border;
+            border-left-width: 0px;
+        }
+        .sp-widget-input button:hover {
+          cursor: pointer;
+          /*background-color: #B9A162;*/
+          background-color: #db0c0e;
+          border-color: #db0c0e;
+
+        }
+
+        .sp-gradient {
+            height:100%;
+            width:100%;
+            top:0px;
+            left:0;
+            pointer-events:none;
+            display:none;
+            position:absolute;
+            /*background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%); 
+            background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); 
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); 
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); */
+            background-color:#000;
+            opacity:0.5;
+            background-position:center;
+            background-size:cover;
+        }
+        .sp-widget.mode-modalPopup .sp-gradient, .sp-widget.mode-fullScreen .sp-gradient {
+            display:block;
+        }
+        .sp-widget.mode-fullScreen .sp-gradient {
+          opacity: 1;
+        }
+        .sp-widget {
+            width:100%;
+            position:relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            z-index:100000000;
+
+        }
+        .sp-widget .sp-inner {
+            background-color:#f1f1f1;
+            box-sizing:border-box;
+            text-align:center;
+            background-color: rgba(255,255,255,0.9);
+            border: 1px solid #f2f2f2;
+            box-sizing: border-box;
+            box-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+            border-radius: 4px;
+            position:relative;
+        }
+        .sp-widget.mode-pageSection .sp-inner {
+            padding:100px;  
+            box-shadow: none;
+            border-radius: none;
+            border: none;
+        }
+        .sp-widget.mode-modalPopup, .sp-widget.mode-fullScreen {
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            padding:20px;
+            text-align:center;
+            display:table;
+            box-sizing:border-box;
+            transition:0.5s ease opacity;
+        }
+        .sp-widget.mode-modalPopup .sp-modalpos, .sp-widget.mode-fullScreen .sp-modalpos {
+            display:table-cell;
+            vertical-align:middle;
+            width:100%;
+            height:100%;
+            text-align:center;
+        }
+        .sp-widget.mode-modalPopup .sp-inner, .sp-widget.mode-fullScreen .sp-inner {
+            width:100%;
+            max-width:500px;
+            padding:75px 50px;
+            display:inline-block;
+        }
+        .sp-widget.mode-fixedBar {
+            position:fixed;
+            bottom:0;
+            left:0;
+            
+            transition:0.5s ease opacity, 0.5s ease transform;
+            z-index:100;
+        }
+        .sp-widget.mode-fixedBar .sp-inner {
+            padding:20px 40px;
+        }
+        .sp-widget.mode-fixedBar.closed {
+            transform:translateY(100%);
+            opacity:0;
+            pointer-events:none;
+        }
+        .sp-widget.mode-modalPopup.closed {
+            opacity:0;
+            pointer-events:none;
+        }
+        .sp-widget.mode-modalPopup .sp-inner {
+            transition:0.5s ease transform;
+        }
+        .sp-widget.mode-modalPopup.closed .sp-inner {
+            transform:translateY(200%);
+        }
+      
+      
+
+        .sp-widget-input {
+            position:relative;
+            padding-right:90px;
+            max-width:700px;
+            width:100%;
+            display:inline-block;
+            text-align:left;
+            box-sizing:border-box;
+        }
+        .sp-widget-input button {
+            width:90px;
+            position:absolute;
+            top:0;
+            right:0;
+        }
+        .sp-copy {
+            color:#171415;
+            position:relative;
+            margin-bottom:25px;
+            /*text-shadow:1px 1px 2px rgba(0,0,0,0.2);*/
+        }
+        .sp-widget.mode-fixedBar .sp-copy {
+            color:rgba(0,0,0,0.7);
+            text-shadow:none;
+            margin-bottom:15px;
+        }
+        .sp-copy .title, .sp-copy .confirmation {letter-spacing: -.03em;line-height: 100%;font-size:30px;margin-bottom:5px;font-weight: bold;}
+        .sp-widget.mode-fixedBar .sp-copy .title, .sp-widget.mode-fixedBar .sp-copy .confirmation {
+            font-size:18px;
+            margin-bottom:10px;
+        }
+        .sp-copy .subtext {font-size: 14px;color: #bfbdbe;}
+        .sp-widget.mode-fixedBar .sp-copy .subtext {
+            font-size:10px;
+            display:none;
+        }
+
+
+        @media (max-width: 600px) {
+
+            .sp-widget.mode-pageSection .sp-inner {
+                padding:60px;
+            }
+            .sp-widget.mode-modalPopup .sp-inner, .sp-widget.mode-fullScreen .sp-inner {
+                padding:40px 25px;
+            }
+
+            .sp-widget-input {
+                padding-right:0;
+            }
+            .sp-widget-input button {
+                position:relative;
+                width:100%;
+                border-left-width: 2px;
+            }
+            .sp-widget-input input, .sp-widget-input select {
+                font-size:14px;
+            }
+            .sp-widget-input input {
+              border-right-width: 2px;
+            }
+
+            .sp-gradient {
+              background-image:url(iggy4.png) !important;
+              background-size:cover !important;
+            }
+          
+        }
+        @media (max-width: 400px) {
+            .sp-widget.mode-pageSection .sp-inner {
+                padding:60px 30px;
+            }
+        }
+    
+    </style>
+
+    <div class="sp-widget closed mode-fullScreen">
+        <div class="sp-modalpos">
+        <div class="sp-gradient" style="background-image:url(iggy.png);background-size:100%;background-repeat:no-repeat;background-position:center;background-color:transparent;"></div>
+        <div class="sp-inner">
+           <div class="icon-close" onclick="toggleHide()">
+                <div class="line1"></div>
+                <div class="line2"></div>
+            </div>
+
+            <div class="sp-copy">
+                <div class="title">Searching for Sally Walker</div>
+                <div class="subtext">Please enter your phone number to join the team</div>
+
+                <div class="confirmation" style="display:none;">Thanks for joining the party!</div>
+                
+            </div>
+            <div class="sp-widget-input">
+                <form id="addContact" class="form-horizontal" method="POST" action="#" autocomplete="false" data-parsley-validate>
+                
+                    <input autocomplete="off" tabindex="4" type="tel" class="form-control" id="phone" name="mobile"
+                            placeholder="Enter your Phone Number" data-parsley-trigger="focusout"
+                            data-parsley-minlength="9" data-parsley-required>
+                
+                    <button type="submit" id="submitButton" class="btn btn-default"> Send</button>
+                    <div class="form-error container">
+                    <div class="col-xs-offset-1">Something went wrong. Please check your mobile and try again.</div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
